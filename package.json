@@ -1,0 +1,39 @@
+{
+  "name": "supernet",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "generateMnemonic": "npx ts-node scripts/utilities/generateMnemonic.ts",
+    "deriveAddresses": "npx ts-node scripts/utilities/deriveAddresses.ts",
+    "getAccountBalances": "npx ts-node scripts/utilities/getAccountBalances.ts",
+    "XtoPChainTransfer": "npx ts-node scripts/transfers/XtoPChainTransfer.ts",
+    "addValidator": "npx ts-node scripts/supernet/addValidator.ts",
+    "createSupernet": "npx ts-node scripts/supernet/createSupernet.ts",
+    "createBlockchain": "npx ts-node scripts/supernet/blockchain/createBlockchain.ts",
+    "addDelegator": "npx ts-node scripts/supernet/addDelegator.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/bn.js": "^5.1.1",
+    "@types/node": "^18.11.11",
+    "dotenv": "^16.0.3"
+  },
+  "dependencies": {
+    "avalanche": "^3.15.5",
+    "axios": "^1.2.1",
+    "bech32": "^2.0.0",
+    "bip39": "^3.0.4",
+    "bn.js": "^5.2.1",
+    "buffer": "^6.0.3",
+    "create-hash": "^1.2.0",
+    "ethers": "^5.7.2",
+    "hdkey": "^2.0.1",
+    "isomorphic-ws": "^5.0.0",
+    "store2": "^2.14.2",
+    "typescript": "^4.9.3",
+    "xss": "^1.0.14"
+  }
+}
