@@ -1,32 +1,41 @@
-import { Juneo, HDNode, GenesisData } from "../../../juneoJS";
+import { Juneo } from "../../../juneoJS";
 import { GetTxStatusResponse, PlatformVMAPI } from "../../../juneoJS/apis/platformvm";
-import { UTXOSet, UnsignedTx } from "../../../juneoJS/apis/platformvm"
-import genesisBlock from "./genesis.json"
+import { UTXOSet, UnsignedTx } from "../../../juneoJS/apis/platformvm";
+import genesisBlock from "./genesis.json";
+import { load } from "ts-dotenv";
+
+const env = load({
+    PROTOCOL: String,
+    HOST: String,
+    PORT: Number,
+    NETWORK_ID: Number,
+    JVM_PRIVATE_KEY: String,
+    SUPERNET_ID: String,
+    BLOCKCHAIN_NAME: String,
+    BLOCKCHAIN_EVM_ID: String
+});
+
+const protocol: string = env.PROTOCOL;
+const host: string = env.HOST;
+const port: number = env.PORT;
+const networkID: number = env.NETWORK_ID;
+const JVMPrivateKey: string = env.JVM_PRIVATE_KEY;
+const supernetID: string = env.SUPERNET_ID;
+const blockchainName: string = env.BLOCKCHAIN_NAME;
+const VMID: string = env.BLOCKCHAIN_EVM_ID;
 
 const addSupernetValidator = async (): Promise<any> => {
 
-    const protocol: string = "http";            // Setting network protocol of node
-    const host: string = "172.104.226.247";     // Setting IP address of node (host)
-    const port: number = 9650;                  // Setting port on which juneogo is running on said node
-    const networkID: number = 1;                // Setting network ID of JUNEO
-
     const juneo: Juneo = new Juneo(host, port, protocol, networkID);    // Instantiating a juneo network from given network parameters 
-    
-    const mnemonic = "cross echo often faith what riot solar sand praise very toss like brand anchor federal differ biology lemon movie across robust song harsh foil";
-    const HDWallet = new HDNode(mnemonic);
-    const JVMDerived = HDWallet.derive("m/44'/9000'/0'/0/0");           // Default Juneo derive path for X/P chain as of BIP44
 
     const PChain: PlatformVMAPI = juneo.PChain();
     const PChainKeychain = PChain.keyChain();
-    PChainKeychain.importKey(JVMDerived.privateKeyCB58);
+    PChainKeychain.importKey(JVMPrivateKey);
     const PChainAddressStrings = PChainKeychain.getAddressStrings();
 
     const genesisData = genesisBlock;
     const genesisBytes = JSON.stringify(genesisData);
-    const blockchainName: string = "";
-    const VMID: string = "subnetevm";
     const FXIDs: string[] = [];
-    const supernetID: string = "238tvJi4tpVum2jDqFf3CdtaGxmyo8dywUMTHuumyifiBSABb"
 
     const platformVMUTXOResponse: any = await PChain.getUTXOs(PChainAddressStrings);
     const PChainUTXOSet: UTXOSet = platformVMUTXOResponse.utxos;

@@ -1,6 +1,23 @@
 import { Juneo, BN } from "../../juneoJS";
 import { JVMAPI } from "../../juneoJS/apis/jvm";
 import { PlatformVMAPI } from "../../juneoJS/apis/platformvm";
+import { load } from "ts-dotenv";
+
+const env = load({
+    PROTOCOL: String,
+    HOST: String,
+    PORT: Number,
+    NETWORK_ID: Number,
+    X_CHAIN_WALLET: String,
+    P_CHAIN_WALLET: String
+});
+
+const protocol: string = env.PROTOCOL;
+const host: string = env.HOST;
+const port: number = env.PORT;
+const networkID: number = env.NETWORK_ID;
+const XChainWalletAddress: string = env.X_CHAIN_WALLET;
+const PChainWalletAddress: string = env.P_CHAIN_WALLET;
 
 // Function for big number conversion 
 const convertBN = (bigNumber: number | BN): number => {
@@ -11,20 +28,12 @@ const convertBN = (bigNumber: number | BN): number => {
 
 const getAccountBalances = async (): Promise<any> => {
 
-    const protocol: string = "http";            // Setting network protocol of node
-    const host: string = "172.104.226.247";     // Setting IP address of node (host)
-    const port: number = 9650;                  // Setting port on which juneogo is running on said node
-    const networkID: number = 1;                // Setting network ID of JUNEO
-
     const juneo: Juneo = new Juneo(host, port, protocol, networkID);        // Instantiating a juneo network from given network parameters 
 
     const XChain: JVMAPI = juneo.XChain();                                  // Retrieving X chain instance from juneo network
     const PChain: PlatformVMAPI = juneo.PChain();                           // Retrieving P chain instance from juneo network
 
-    const assetID: string = "JUNE";                        // Defining asset ID (Use specific ID string for other assets)
-
-    const XChainWalletAddress: string = "X-june10cqp565uvecm4av86cmstcxa6m8nydu33hrrg6";                // Retrieving X chain wallet address
-    const PChainWalletAddress: string = "P-june10cqp565uvecm4av86cmstcxa6m8nydu33hrrg6";                // Retrieving P chain wallet address
+    const assetID: string = "JUNE";             // Defining asset ID (Use specific ID string for other assets)
 
     const balancesXChain = (await XChain.getBalance(XChainWalletAddress, assetID, false)).balance;      // Getting JUNE balances of X chain 
     const balancesPChain = (await PChain.getBalance(PChainWalletAddress)).balance;                      // Getting JUNE balances of P chain
@@ -32,9 +41,9 @@ const getAccountBalances = async (): Promise<any> => {
     console.log(`
     Balances:
         X Chain:
-        ${convertBN(balancesXChain)} JUNE
+            ${convertBN(balancesXChain)} JUNE
         P Chain:
-        ${convertBN(balancesPChain)} JUNE
+            ${convertBN(balancesPChain)} JUNE
     `);
 }
 

@@ -1,11 +1,28 @@
-import { Juneo, HDNode, BN } from "../../juneoJS";
+import { Juneo, BN } from "../../juneoJS";
+import { load } from "ts-dotenv";
+
+const env = load({
+    PROTOCOL: String,
+    HOST: String,
+    PORT: Number,
+    NETWORK_ID: Number,
+    JVM_PRIVATE_KEY: String,
+});
+
+const protocol: string = env.PROTOCOL;
+const host: string = env.HOST;
+const port: number = env.PORT;
+const networkID: number = env.NETWORK_ID;
+const JVMPrivateKey: string = env.JVM_PRIVATE_KEY;
+
+// Function for big number conversion 
+const convertBN = (bigNumber: number | BN): number => {
+    const amountString: string = bigNumber.toString();
+    const amountNumber: number = (+amountString) / 1000000000;
+    return amountNumber;
+}
 
 const XtoPchainTransfer = async (): Promise<any> => {
-
-    const protocol = "http";                // Setting network protocol of node
-    const host = "172.104.226.247";         // Setting IP address of node (host)
-    const port = 9650;                      // Setting port on which juneogo is running on said node
-    const networkID = 1;                    // Setting network ID of JUNEO
 
     const juneo: Juneo = new Juneo(host, port, protocol, networkID);    // Instantiating a juneo network from given network parameters 
     
@@ -15,26 +32,25 @@ const XtoPchainTransfer = async (): Promise<any> => {
     const XChainKeychain = XChain.keyChain();           // Retrieving X chain keychain  
     const PChainKeychain = PChain.keyChain();           // Retrieving P chain keychain
 
-    const mnemonic = "cross echo often faith what riot solar sand praise very toss like brand anchor federal differ biology lemon movie across robust song harsh foil";
-    const HDWallet = new HDNode(mnemonic);
-    const JVMDerived = HDWallet.derive("m/44'/9000'/0'/0/0");           // Default Juneo derive path for X/P chain as of BIP44
-
-    XChainKeychain.importKey(JVMDerived.privateKeyCB58);                // Importing JVM derived private key onto X chain keychain (used for X chain public address generation)
-    PChainKeychain.importKey(JVMDerived.privateKeyCB58);                // Importing JVM derived private key onto P chain keychain (used for P chain public address generation)   
+    XChainKeychain.importKey(JVMPrivateKey);                // Importing JVM derived private key onto X chain keychain (used for X chain public address generation)
+    PChainKeychain.importKey(JVMPrivateKey);                // Importing JVM derived private key onto P chain keychain (used for P chain public address generation)   
 
     const XChainAddressStrings = XChainKeychain.getAddressStrings();    // Getting public addresses of X chain
     const PChainAddressStrings = PChainKeychain.getAddressStrings();    // Getting public addresses of X chain
 
     // EXPORT TRANSACTION
 
-    const amount = new BN(1e6);                                                     // Defining amount to be sent in said transaction
+    const feeAmountXChain = XChain.getTxFee();                  // Getting fee amount for X Chain
+    const transferAmount = new BN(1e7);
+
+    const totalAmount = transferAmount.add(feeAmountXChain);    // Defining amount to be sent in said transaction
 
     const XChainUTXOResponse = await XChain.getUTXOs(XChainAddressStrings);     
     const XChainUTXOSet = XChainUTXOResponse.utxos;                                
     
     const unsignedExportTX = await XChain.buildExportTx(
         XChainUTXOSet,
-        amount,
+        totalAmount,
         PChain.getBlockchainID(),
         PChainAddressStrings,
         XChainAddressStrings,
@@ -85,6 +101,8 @@ const XtoPchainTransfer = async (): Promise<any> => {
     }
 
     console.log(`Transaction (${importTXID}) has been processed\n`);
+
+    console.log(`${convertBN(transferAmount)} JUNE was transfered from the X to the P chain`);
 };
 
 XtoPchainTransfer()
