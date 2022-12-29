@@ -26,11 +26,11 @@ const XtoPchainTransfer = async (): Promise<any> => {
 
     const juneo: Juneo = new Juneo(host, port, protocol, networkID);    // Instantiating a juneo network from given network parameters 
     
-    const XChain = juneo.XChain();                      // Retrieving X chain instance from juneo network
-    const PChain = juneo.PChain();                      // Retrieving P chain instance from juneo network
+    const XChain = juneo.XChain();                          // Retrieving X chain instance from juneo network
+    const PChain = juneo.PChain();                          // Retrieving P chain instance from juneo network
 
-    const XChainKeychain = XChain.keyChain();           // Retrieving X chain keychain  
-    const PChainKeychain = PChain.keyChain();           // Retrieving P chain keychain
+    const XChainKeychain = XChain.keyChain();               // Retrieving X chain keychain  
+    const PChainKeychain = PChain.keyChain();               // Retrieving P chain keychain
 
     XChainKeychain.importKey(JVMPrivateKey);                // Importing JVM derived private key onto X chain keychain (used for X chain public address generation)
     PChainKeychain.importKey(JVMPrivateKey);                // Importing JVM derived private key onto P chain keychain (used for P chain public address generation)   
